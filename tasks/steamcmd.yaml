@@ -1,0 +1,35 @@
+---
+- name: "Enable Multiverse"
+  command: "add-apt-repository multiverse"
+  register: __valheim_multiverse
+  changed_when: "'distribution component is already enabled for all sources' not in __valheim_multiverse.stdout"
+  become: true
+
+- name: "Add i386 architecture"
+  command: "dpkg --add-architecture i386"
+  become: true
+  changed_when: false
+
+# root@valheim:~# debconf-show steamcmd
+# * steam/question: I AGREE
+# * steam/license:
+#   steam/purge:
+- name: "Steamcmd License agreement"
+  debconf:
+    name: steamcmd
+    question: 'steam/question'
+    value: 'I AGREE'
+    vtype: 'select'
+  when: steamcmd_agree_to_license
+  become: true
+
+- name: "Install Steamcmd and Requirements"
+  apt:
+    install_recommends: true
+    name:
+      - lib32gcc1
+      - steamcmd
+      - jq
+    state: 'latest'
+    update_cache: true
+  become: true

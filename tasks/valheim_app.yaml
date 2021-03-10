@@ -1,0 +1,86 @@
+---
+# Get newest Valheim Version
+- name: 'Get valheim_latest_version'
+  shell:
+    chdir: "{{ valheim_root }}"
+    cmd: "{{ steamcmd_path }} +login anonymous +app_info_print {{ valheim_steam_gameid }} +quit | tr -s '\t' ' ' | tr -d '\n' | grep -Eo '\"branches\" { \"public\" { \"buildid\" \"[0-9]+\"' | grep -Eo '[0-9]+'"
+  register: valheim_latest_version
+  changed_when: false
+
+- name: "redefine valheim_latest_version"
+  set_fact:
+    valheim_latest_version: "{{ valheim_latest_version.stdout }}"
+
+
+# Get last Valheim Version
+- block:
+    - name: 'Get valheim_last_version'
+      slurp:
+        src: "{{ valheim_root }}/valheim_last_version"
+      register: valheim_last_version
+    - name: 'redefine valheim_last_version'
+      set_fact:
+        valheim_last_version: "{{ valheim_last_version['content'] | b64decode }}"
+  rescue:
+    - name: 'Define valheim_last_version as 0'
+      set_fact:
+        valheim_last_version: 0
+
+# If newest version is newer then last version
+- when: valheim_latest_version is version( valheim_last_version, '>' )
+  block:
+## Annouce Reboot
+
+## Sleep
+
+## Stop Servers
+    # - name: 'Stop valheim servers'
+    #   systemd:
+    #     name: 'valheim_*.service' # glob patterns are not supported
+    #     state: stopped
+    #   become: true
+    - name: 'Stop valheim servers'
+      command:
+        cmd: "systemctl stop valheim_*.service"
+      become: true
+
+## Backup Server Data
+    - name: 'Backup valheim server data'
+      archive:
+        dest: "{{ valheim_root }}/backups/{{ item.key }}_{{ ansible_date_time.iso8601_basic_short }}.gz"
+        group: "{{ valheim_group }}"
+        owner: "{{ valheim_user }}"
+        path: "{{ valheim_root }}/{{ item.key }}"
+      loop: "{{ valheim_servers | dict2items }}"
+      become: true
+
+    - name: 'Manage old backups'
+      include_tasks: 'valheim_old_backups.yaml'
+      loop: "{{ valheim_servers | dict2items }}"
+      loop_control:
+        loop_var: vs
+
+## Install / Update
+    - name: 'Install valheim'
+      command:
+        chdir: "{{ valheim_root }}"
+        cmd: "{{ steamcmd_path }} +@sSteamCmdForcePlatformType {{ steamcmd_login }} +force_install_dir {{ valheim_root }}/server +app_update {{ valheim_steam_gameid }} validate +quit"
+      become: true
+
+    - name: 'Update valheim_last_version on disk'
+      copy:
+        backup: true
+        content: "{{ valheim_latest_version }}"
+        dest: "{{ valheim_root }}/valheim_last_version"
+        group: "{{ valheim_group }}"
+        owner: "{{ valheim_user }}"
+      become: true
+
+- name: 'Fix Permissions in valheim root'
+  file:
+    group: "{{ valheim_group }}"
+    owner: "{{ valheim_user }}"
+    path: "{{ valheim_root }}"
+    recurse: true
+    state: 'directory'
+  become: true

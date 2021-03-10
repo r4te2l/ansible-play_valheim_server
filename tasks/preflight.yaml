@@ -1,0 +1,6 @@
+---
+- name: 'Verify OS is supported'
+  assert:
+    that:
+      - ansible_distribution_release in ['focal']
+    fail_msg: "OS is not supported"

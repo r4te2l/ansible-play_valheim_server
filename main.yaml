@@ -1,0 +1,33 @@
+---
+# I'm doing this quickly, I'm sorry for the crap that I have produced.
+
+- name: "Valheim Dedicated Server"
+  hosts: all
+  vars_files:
+    - 'vars/main.yaml'
+  pre_tasks:
+    - name: 'Preflight'
+      include_tasks: 'tasks/preflight.yaml'
+
+    - name: 'Include OS Specific Vars'
+      include_vars: "{{ item }}"
+      with_first_found:
+        - "vars/{{ ansible_distribution }}.yaml"
+        - "vars/{{ ansible_os_family }}.yaml"
+        - "vars/generic_os.yaml"
+
+    - name: 'Define Parameters'
+      include_tasks: 'tasks/parameters.yaml'
+
+  tasks:
+    - include_tasks: 'tasks/steamcmd.yaml'
+    - include_tasks: 'tasks/valheim_root.yaml'
+    - include_tasks: 'tasks/valheim_app.yaml'
+    - include_tasks: 'tasks/valheim_servers.yaml'
+
+  handlers:
+    - name: 'reload systemd daemon'
+      systemd:
+        daemon_reload: true
+      become: true
+      listen: "reload_daemon"

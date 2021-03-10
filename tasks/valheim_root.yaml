@@ -1,0 +1,42 @@
+---
+- name: 'Create valheim group'
+  group:
+    name: "{{ valheim_group }}"
+    state: 'present'
+  become: true
+
+- name: 'Create valheim user'
+  user:
+    create_home: false
+    group: "{{ valheim_group }}"
+    name: "{{ valheim_user }}"
+    state: 'present'
+    system: true
+  become: true
+
+- name: 'Create valheim root'
+  file:
+    group: "{{ valheim_group }}"
+    owner: "{{ valheim_user }}"
+    path: "{{ valheim_root }}"
+    recurse: true
+    state: 'directory'
+  become: true
+
+- name: 'Create valheim server directory'
+  file:
+    group: "{{ valheim_group }}"
+    owner: "{{ valheim_user }}"
+    path: "{{ valheim_root }}/server"
+    recurse: true
+    state: 'directory'
+  become: true
+
+- name: 'Create valheim backup directory'
+  file:
+    group: "{{ valheim_group }}"
+    owner: "{{ valheim_user }}"
+    path: "{{ valheim_root }}/backups"
+    recurse: true
+    state: 'directory'
+  become: true

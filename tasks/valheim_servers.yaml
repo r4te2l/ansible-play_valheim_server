@@ -1,0 +1,38 @@
+---
+- name: 'Create systemd service files'
+  template:
+    dest: "/lib/systemd/system/valheim_{{ vs.key }}.service"
+    src: 'valheim_server.service.j2'
+  become: true
+  when: vs.state | default('started') == 'started'
+  loop: "{{ valheim_servers | dict2items }}"
+  loop_control:
+    loop_var: 'vs'
+  notify: 'reload_daemon'
+
+- name: 'Remove systemd service files'
+  file:
+    path: "/lib/systemd/system/valheim_{{ vs.key }}.service"
+    state: 'absent'
+  become: true
+  when: vs.state | default('started') == 'absent'
+  loop: "{{ valheim_servers | dict2items }}"
+  loop_control:
+    loop_var: 'vs'
+  notify: 'reload_daemon'
+
+- name: 'Flush Handlers to reload daemons'
+  meta: flush_handlers
+
+## Start Servers
+
+- name: 'Manage valheim servers'
+  systemd:
+    enabled: "{{ vs.enabled | default(true) }}"
+    masked: "{{ vs.masked | default(false) }}"
+    name: "valheim_{{ vs.key }}.service"
+    state: "{{ vs.state | default('started') }}"
+  become: true
+  loop: "{{ valheim_servers | dict2items }}"
+  loop_control:
+    loop_var: 'vs'

@@ -1,0 +1,4 @@
+.vagrant/
+Valheim_Dedicated_Server_Manual.pdf
+venv/
+__pycache__

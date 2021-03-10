@@ -1,0 +1,50 @@
+---
+- name: 'Set Default: valheim_root'
+  set_fact:
+    valheim_root: "{{ _valheim_root }}"
+  when: valheim_root is not defined
+
+- name: 'Set Default: valheim_user'
+  set_fact:
+    valheim_user: "{{ _valheim_user }}"
+  when: valheim_user is not defined
+
+- name: 'Set Default: valheim_group'
+  set_fact:
+    valheim_group: "{{ _valheim_group }}"
+  when: valheim_group is not defined
+
+- name: 'Set Default: steamcmd_agree_to_license'
+  set_fact:
+    steamcmd_agree_to_license: "{{ _steamcmd_agree_to_license }}"
+  when: steamcmd_agree_to_license is not defined
+
+- name: 'Set Default: steamcmd_path'
+  set_fact:
+    steamcmd_path: "{{ _steamcmd_path }}"
+  when: steamcmd_path is not defined
+
+- name: 'Set Default: steamcmd_login'
+  set_fact:
+    steamcmd_login: "+login {{ steamcmd_username | default('anonymous') }} {{ steamcmd_password | default('') }}"
+  no_log: true
+
+- name: 'Set Default: steamcmd_login'
+  set_fact:
+    steamcmd_login: ''
+  when: steamcmd_login is not defined
+
+- name: 'Set Default: valheim_steam_gameid'
+  set_fact:
+    valheim_steam_gameid: "{{ _valheim_steam_gameid }}"
+  when: valheim_steam_gameid is not defined
+
+- name: 'Set Default: valheim_server_defaults'
+  set_fact:
+    valheim_server_defaults: "{{ _valheim_server_defaults }}"
+  when: valheim_server_defaults is not defined
+
+- name: 'Set Default: valheim_servers'
+  set_fact:
+    valheim_servers: "{{ _valheim_servers }}"
+  when: valheim_servers is not defined

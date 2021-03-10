@@ -1,0 +1,22 @@
+---
+_valheim_root: '/opt/valheim'
+_valheim_user: 'steam'
+_valheim_group: "{{ valheim_user }}"
+_steamcmd_agree_to_license: false
+_steamcmd_path: '/usr/games/steamcmd'
+# _steamcmd_username: ''
+# _steamcmd_password: ''
+_valheim_steam_gameid: 896660
+_valheim_server_defaults:
+  name: 'Valheim Server'
+  port: 2456
+  # world: "Dedicated" # required option
+  password: ''
+  # savedir: "{{ valheim_root }}/Dedicated" # dynamically generated
+  public: false
+  backups: 5
+  # enabled: true
+  # state: 'started'
+  # masked: false
+_valheim_servers:
+  dedicated_server:

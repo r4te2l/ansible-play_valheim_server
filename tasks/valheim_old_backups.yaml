@@ -1,0 +1,14 @@
+---
+- name: "Find backups for {{ vs.key }}"
+  find:
+    paths: "{{ valheim_root}}/backups/"
+    patterns: "{{ vs.key }}_*"
+  register: valheim_backups
+
+- name: "Delete old backups for {{ vs.key }}"
+  when: valheim_backups.matched > vs.key.backups | default(valheim_server_defaults.backups)
+  file:
+    path: "{{ item.path }}"
+    state: 'absent'
+  loop: "{{ valheim_backups.files | valheim_old_backups(vs.value.backups | default(valheim_server_defaults.backups)) }}"
+  become: true

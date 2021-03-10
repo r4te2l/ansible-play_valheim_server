@@ -1,0 +1,32 @@
+{{ ansible_managed | comment }}
+[Unit]
+Description=Valheim Server {{ vs.key }}: "{{ vs.value.name | default(valheim_server_defaults.name) }}"
+Wants=network-online.target
+After=syslog.target network.target nss-lookup.target network-online.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=5
+StartLimitInterval=60s
+StartLimitBurst=3
+User={{ valheim_user }}
+Group={{ valheim_group }}
+Environment="LD_LIBRARY_PATH=./linux64"
+ExecStart={{ valheim_root }}/server/valheim_server.x86_64 \
+        -name "{{ vs.value.name | default(valheim_server_defaults.name) }}" \
+        -port "{{ vs.value.port | default(valheim_server_defaults.port) }}" \
+        -nographics \
+        -batchmode \
+        -world "{{ vs.key }}" \
+{% if vs.value.password | default(valheim_server_defaults.password) | length %}
+        -password "{{ vs.value.password | default(valheim_server_defaults.password) }}" \
+{% endif %}
+        -savedir "{{ valheim_root }}/{{ vs.key }}" \
+        -public "{{ '1' if vs.value.public | default(valheim_server_defaults.public) else '0' }}"
+ExecReload=/bin/kill -s HUP $MAINPID
+KillSignal=SIGINT
+WorkingDirectory={{ valheim_root }}/server/
+LimitNOFILE=100000
+[Install]
+WantedBy=multi-user.target
