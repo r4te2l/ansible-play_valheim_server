@@ -40,3 +40,13 @@
     recurse: true
     state: 'directory'
   become: true
+
+- name: 'Create valheim server directories'
+  file:
+    group: "{{ valheim_group }}"
+    owner: "{{ valheim_user }}"
+    path: "{{ valheim_root }}/{{ item.key }}"
+    recurse: true
+    state: 'directory'
+  loop: "{{ valheim_servers | dict2items }}"
+  become: true

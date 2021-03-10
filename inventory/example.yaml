@@ -1,0 +1,11 @@
+---
+all:
+  hosts:
+    localhost:
+      vars:
+        ansible_connection: local
+        steamcmd_agree_to_license: true
+        valheim_servers:
+          family:
+            name: 'No Shirt No Shoes No Service'
+            public: true
