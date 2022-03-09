@@ -7,4 +7,4 @@ all:
       valheim_servers:
         family:
           name: 'No Shirt No Shoes No Service'
-          public: true
+          public: false

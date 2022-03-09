@@ -14,7 +14,7 @@ User={{ valheim_user }}
 Group={{ valheim_group }}
 Environment="LD_LIBRARY_PATH=./linux64"
 ExecStart={{ valheim_root }}/server/valheim_server.x86_64 \
-        -name "{{ vs.value.name | default(valheim_server_defaults.name) }}" \
+        -name "'{{ vs.value.name | default(valheim_server_defaults.name) }}'" \
         -port "{{ vs.value.port | default(valheim_server_defaults.port) }}" \
         -nographics \
         -batchmode \
