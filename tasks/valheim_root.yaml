@@ -48,6 +48,5 @@
     path: "{{ valheim_root }}/{{ item.key }}"
     recurse: true
     state: 'directory'
-  when: item.value.state | default('started') == 'started'
   loop: "{{ valheim_servers | dict2items }}"
   become: true
